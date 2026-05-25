@@ -4,6 +4,7 @@ import com.docjarvis.dto.AuthResponse;
 import com.docjarvis.dto.SignupRequest;
 import com.docjarvis.entity.User;
 import com.docjarvis.repository.UserRepository;
+import com.docjarvis.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public AuthResponse signup(SignupRequest request) {
 
@@ -32,6 +34,7 @@ public class AuthService {
 
         userRepository.save(user);
 
-        return new AuthResponse("token_coming_soon", user.getEmail(), user.getName());
+        String token = jwtService.generateToken(user.getEmail());
+        return new AuthResponse(token, user.getEmail(), user.getName());
     }
 }
