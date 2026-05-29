@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.docjarvis.document.Document;
+import com.docjarvis.dto.DocumentResponse;
 import com.docjarvis.entity.User;
 import com.docjarvis.service.DocumentService;
 
@@ -26,19 +27,22 @@ public class DocumentController {
     private final DocumentService documentService;
 
     @PostMapping("/upload")
-    public ResponseEntity<Document> uploadDocument(
+    public ResponseEntity<DocumentResponse> uploadDocument(
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal User user) throws IOException {
 
         Document saved = documentService.uploadDocument(file, user);
-        return ResponseEntity.ok(saved);
+        return ResponseEntity.ok(DocumentResponse.fromDocument(saved));
     }
 
     @GetMapping
-    public ResponseEntity<List<Document>> getUserDocuments(
+    public ResponseEntity<List<DocumentResponse>> getUserDocuments(
             @AuthenticationPrincipal User user) {
 
         List<Document> documents = documentService.getUserDocuments(user);
-        return ResponseEntity.ok(documents);
+        List<DocumentResponse> response = documents.stream()
+                .map(DocumentResponse::fromDocument)
+                .toList();
+        return ResponseEntity.ok(response);
     }
 }
