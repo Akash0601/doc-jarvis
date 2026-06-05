@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class DocumentService {
 
     private final DocumentRepository documentRepository;
+    private final EmbeddingService embeddingService;
     private final Tika tika = new Tika();
 
     public Document uploadDocument(MultipartFile file, User user) throws IOException {
@@ -56,7 +57,9 @@ public class DocumentService {
                 .user(user)
                 .build();
 
-        return documentRepository.save(document);
+        Document savedDocument = documentRepository.save(document);
+        embeddingService.embedAndStore(savedDocument.getId(), savedDocument.getExtractedText());
+        return savedDocument;
     }
 
     private String extractFromPdf(MultipartFile file) throws IOException {
