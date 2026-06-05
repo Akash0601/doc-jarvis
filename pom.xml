@@ -106,6 +106,34 @@
 			<artifactId>tika-core</artifactId>
 			<version>2.9.2</version>
 		</dependency>
+
+		<!-- LangChain4j Spring Boot Starter -->
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-spring-boot-starter</artifactId>
+			<version>1.0.0-beta2</version>
+		</dependency>
+
+		<!-- LangChain4j Gemini Integration (for embeddings) -->
+		
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-google-ai-gemini</artifactId>
+			<version>1.0.0-beta2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-embeddings-all-minilm-l6-v2</artifactId>
+			<version>1.0.0-beta2</version>
+		</dependency>
+
+		<!-- LangChain4j Qdrant Vector Store -->
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-qdrant</artifactId>
+			<version>1.0.0-beta2</version>
+		</dependency>
 	</dependencies>
 
 	<build>
