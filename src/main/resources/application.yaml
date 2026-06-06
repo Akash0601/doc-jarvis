@@ -10,13 +10,17 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-
+  profiles:
+    active: local
+  autoconfigure:
+    exclude:
+      - dev.langchain4j.spring.boot.autoconfigure.embedding.model.EmbeddingModelAutoConfiguration
 server:
   port: 8080
 
 jwt:
   secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-  expiration: 86400000  
+  expiration: 86400000
 
 langchain4j:
   qdrant:
@@ -24,3 +28,27 @@ langchain4j:
     port: 6334
     uses-tls: false
     collection-name: documents
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+llm:
+  provider: ollama
+  ollama:
+    base-url: http://localhost:11434
+    model-name: llama3.2
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+llm:
+  provider: openai
+  openai:
+    api-key: ${OPENAI_API_KEY}
+    model-name: gpt-4o-mini
