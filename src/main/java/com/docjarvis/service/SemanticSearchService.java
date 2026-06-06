@@ -27,7 +27,9 @@ public class SemanticSearchService {
         log.info("Searching for relevant chunks for query: '{}', documentId: {}", query, documentId);
 
         // Step 1: Embed the user's query using the SAME model used during ingestion
-        Embedding queryEmbedding = embeddingModel.embed(query).content();
+        TextSegment querySegment = TextSegment.from(query);
+        Embedding queryEmbedding = embeddingModel.embed(querySegment).content();
+        log.info("Query embedding dimension: {}", queryEmbedding.vector().length);
 
         // Step 2: Build the search request — top 5 most similar chunks
         EmbeddingSearchRequest searchRequest = EmbeddingSearchRequest.builder()
@@ -35,6 +37,7 @@ public class SemanticSearchService {
                 .maxResults(5)
                 .minScore(0.3)
                 .build();
+           
 
         // Step 3: Search Qdrant for similar vectors
         EmbeddingSearchResult<TextSegment> searchResult =

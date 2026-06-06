@@ -12,7 +12,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   profiles:
     active: local
-
+  autoconfigure:
+    exclude:
+      - dev.langchain4j.spring.boot.autoconfigure.embedding.model.EmbeddingModelAutoConfiguration
 server:
   port: 8080
 
