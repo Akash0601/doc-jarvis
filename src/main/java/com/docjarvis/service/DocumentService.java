@@ -53,6 +53,7 @@ public class DocumentService {
                 .fileName(file.getOriginalFilename())
                 .fileType(mimeType)
                 .extractedText(cleanedText)
+                .fileSize(file.getSize())
                 .uploadedAt(LocalDateTime.now())
                 .user(user)
                 .build();
