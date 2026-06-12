@@ -3,6 +3,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import DashboardPage from './pages/DashboardPage'
+import ChatPage from './pages/ChatPage'
 
 function App() {
   return (
@@ -12,6 +13,11 @@ function App() {
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <DashboardPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/chat/:documentId" element={
+        <ProtectedRoute>
+          <ChatPage />
         </ProtectedRoute>
       } />
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
