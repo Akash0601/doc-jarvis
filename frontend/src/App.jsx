@@ -1,8 +1,20 @@
+import { Routes, Route, Navigate } from 'react-router-dom'
+import ProtectedRoute from './components/ProtectedRoute'
+import LoginPage from './pages/LoginPage'
+import SignupPage from './pages/SignupPage'
+
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <h1 className="text-3xl font-bold text-[#1D9E75]">Doc Jarvis</h1>
-    </div>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/dashboard" element={
+        <ProtectedRoute>
+          <div className="text-[#1D9E75] p-8">Dashboard - Coming Soon</div>
+        </ProtectedRoute>
+      } />
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
   )
 }
 
