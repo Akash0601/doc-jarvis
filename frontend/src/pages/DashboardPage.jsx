@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import { getDocuments, uploadDocument } from '../services/documentService'
+import { getDocuments, uploadDocument, deleteDocument } from '../services/documentService'
 
 function DashboardPage() {
   const [documents, setDocuments] = useState([])
@@ -53,9 +53,19 @@ function DashboardPage() {
     }
   }
 
+  const handleDelete = async (documentId) => {
+    if (!window.confirm('Are you sure you want to delete this document?')) return
+    try {
+      await deleteDocument(documentId)
+      await fetchDocuments()
+    } catch {
+      setError('Failed to delete document. Please try again.')
+    }
+  }
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric', month: 'short', day: 'numeric'
+      year: 'numeric', month: 'long', day: 'numeric'
     })
   }
 
@@ -149,13 +159,27 @@ function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Chat button */}
-                <button
-                  onClick={() => navigate(`/chat/${doc.id}`)}
-                  className="w-full bg-[#1D9E75] hover:bg-[#178a63] text-white text-sm font-medium py-2 rounded-lg transition-colors"
-                >
-                  Chat with Doc
-                </button>
+                {/* Action buttons */}
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => navigate(`/chat/${doc.id}`)}
+                    className="flex-1 bg-[#1D9E75] hover:bg-[#178a63] text-white text-sm font-medium py-2 rounded-lg transition-colors"
+                  >
+                    Chat with Doc
+                  </button>
+                  <button
+                    onClick={() => navigate(`/flashcards/${doc.id}`)}
+                    className="flex-1 border border-[#1D9E75] text-[#1D9E75] hover:bg-[#1D9E75] hover:text-white text-sm font-medium py-2 rounded-lg transition-colors"
+                  >
+                    Flashcards
+                  </button>
+                  <button
+                    onClick={() => handleDelete(doc.id)}
+                    className="w-full border border-red-200 text-red-400 hover:bg-red-50 text-sm font-medium py-2 rounded-lg transition-colors"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>

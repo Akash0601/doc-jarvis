@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import DashboardPage from './pages/DashboardPage'
 import ChatPage from './pages/ChatPage'
+import FlashcardsPage from './pages/FlashcardsPage'
 
 function App() {
   return (
@@ -18,6 +19,11 @@ function App() {
       <Route path="/chat/:documentId" element={
         <ProtectedRoute>
           <ChatPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/flashcards/:documentId" element={
+        <ProtectedRoute>
+          <FlashcardsPage />
         </ProtectedRoute>
       } />
       <Route path="/" element={<Navigate to="/dashboard" replace />} />

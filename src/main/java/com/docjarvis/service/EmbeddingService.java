@@ -97,4 +97,8 @@ public class EmbeddingService {
         log.info("Embedding pipeline complete for documentId: {}. Total chunks stored: {}", 
                  documentId, chunks.size());
     }
+
+    public void deleteEmbeddings(Long documentId) {
+        log.info("Document {} deleted from DB. Embeddings will be filtered by documentId during search.", documentId);
+    }
 }

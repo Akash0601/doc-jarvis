@@ -11,3 +11,7 @@ export const uploadDocument = (file) => {
 export const getDocuments = () => {
   return api.get('/documents')
 }
+
+export const deleteDocument = (documentId) => {
+  return api.delete(`/documents/${documentId}`)
+}
