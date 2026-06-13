@@ -12,6 +12,7 @@ import org.apache.tika.Tika;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.docjarvis.chat.ChatMessageRepository;
 import com.docjarvis.document.Document;
 import com.docjarvis.entity.User;
 import com.docjarvis.repository.DocumentRepository;
@@ -24,6 +25,7 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final EmbeddingService embeddingService;
+    private final ChatMessageRepository chatMessageRepository;
     private final Tika tika = new Tika();
 
     public Document uploadDocument(MultipartFile file, User user) throws IOException {
@@ -53,6 +55,7 @@ public class DocumentService {
                 .fileName(file.getOriginalFilename())
                 .fileType(mimeType)
                 .extractedText(cleanedText)
+                .fileSize(file.getSize())
                 .uploadedAt(LocalDateTime.now())
                 .user(user)
                 .build();
@@ -81,12 +84,27 @@ public class DocumentService {
 
     private String cleanText(String text) {
         return text
-                .replaceAll("\\s+", " ")  // collapse multiple spaces/newlines into one
-                .replaceAll("[^\\x20-\\x7E\\n]", "")  // remove non-printable characters
+                .replaceAll("\\s+", " ")
+                .replaceAll("[^\\x20-\\x7E\\n]", "")
                 .trim();
     }
 
     public List<Document> getUserDocuments(User user) {
         return documentRepository.findByUser(user);
+    }
+
+    public void deleteDocument(Long documentId, User user) {
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new RuntimeException("Document not found"));
+
+        if (!document.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        // Delete chat messages first (FK constraint)
+        chatMessageRepository.deleteByDocumentId(documentId);
+
+        embeddingService.deleteEmbeddings(documentId);
+        documentRepository.deleteById(documentId);
     }
 }
