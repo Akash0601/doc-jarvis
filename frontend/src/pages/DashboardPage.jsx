@@ -55,7 +55,12 @@ function DashboardPage() {
       await fetchDocuments()
       showToast('Document uploaded successfully!', 'success')
     } catch (err) {
-      showToast(err.response?.data?.message || 'Upload failed. Please try again.', 'error')
+      showToast(
+        err.response?.data?.message || 
+        err.response?.data?.error || 
+        'Upload failed. Please try again.', 
+        'error'
+      )
     } finally {
       setUploading(false)
       e.target.value = ''

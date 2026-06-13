@@ -50,7 +50,14 @@ public class DocumentService {
         // Step 4: Clean the extracted text
         String cleanedText = cleanText(extractedText);
 
-        // Step 5: Save to database
+        // Step 5: Check if text extraction succeeded
+        if (cleanedText.isEmpty()) {
+            throw new IllegalArgumentException(
+                "Could not extract text from this PDF. It may be a scanned document. Only text-based PDFs are supported."
+            );
+        }
+
+        // Step 6: Save to database
         Document document = Document.builder()
                 .fileName(file.getOriginalFilename())
                 .fileType(mimeType)
