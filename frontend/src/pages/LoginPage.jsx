@@ -24,7 +24,7 @@ function LoginPage() {
     setLoading(true)
     try {
       const response = await login(email, password)
-      authLogin(response.data.token, { email })
+      authLogin(response.data.token, { name: response.data.name, email })
       navigate('/dashboard')
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid email or password')

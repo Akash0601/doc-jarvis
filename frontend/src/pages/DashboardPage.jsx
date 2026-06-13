@@ -3,21 +3,29 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import Toast from '../components/Toast'
+import useToast from '../hooks/useToast'
 import { getDocuments, uploadDocument, deleteDocument } from '../services/documentService'
 
 function DashboardPage() {
   const [documents, setDocuments] = useState([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
-  const [error, setError] = useState('')
+  const [deletingId, setDeletingId] = useState(null)
   const navigate = useNavigate()
+  const { toast, showToast, hideToast } = useToast()
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const filteredDocuments = documents.filter(doc =>
+    doc.fileName.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   const fetchDocuments = useCallback(async () => {
     try {
       const response = await getDocuments()
       setDocuments(response.data)
     } catch {
-      setError('Failed to load documents')
+      showToast('Failed to load documents', 'error')
     } finally {
       setLoading(false)
     }
@@ -31,22 +39,23 @@ function DashboardPage() {
     const file = e.target.files[0]
     if (!file) return
 
-    const allowedTypes = ['application/pdf',
+    const allowedTypes = [
+      'application/pdf',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'text/plain'
     ]
     if (!allowedTypes.includes(file.type)) {
-      setError('Only PDF, DOCX, and TXT files are supported')
+      showToast('Only PDF, DOCX, and TXT files are supported', 'error')
       return
     }
 
     setUploading(true)
-    setError('')
     try {
       await uploadDocument(file)
       await fetchDocuments()
+      showToast('Document uploaded successfully!', 'success')
     } catch (err) {
-      setError(err.response?.data?.message || 'Upload failed. Please try again.')
+      showToast(err.response?.data?.message || 'Upload failed. Please try again.', 'error')
     } finally {
       setUploading(false)
       e.target.value = ''
@@ -55,21 +64,26 @@ function DashboardPage() {
 
   const handleDelete = async (documentId) => {
     if (!window.confirm('Are you sure you want to delete this document?')) return
+    setDeletingId(documentId)
     try {
       await deleteDocument(documentId)
       await fetchDocuments()
+      showToast('Document deleted successfully', 'success')
     } catch {
-      setError('Failed to delete document. Please try again.')
+      showToast('Failed to delete document. Please try again.', 'error')
+    } finally {
+      setDeletingId(null)
     }
   }
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric', month: 'long', day: 'numeric'
+      year: 'numeric', month: 'short', day: 'numeric'
     })
   }
 
   const formatSize = (bytes) => {
+    if (!bytes) return 'Unknown size'
     if (bytes < 1024) return bytes + ' B'
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
@@ -77,38 +91,40 @@ function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <Navbar onUpload={handleUpload} uploading={uploading} />
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">My Documents</h1>
-            <p className="text-gray-500 text-sm mt-1">
-              Upload documents and chat with them using AI
-            </p>
-          </div>
-
-          {/* Upload button */}
-          <label className={`cursor-pointer bg-[#1D9E75] hover:bg-[#178a63] text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors ${uploading ? 'opacity-60 cursor-not-allowed' : ''}`}>
-            {uploading ? 'Uploading...' : '+ Upload Document'}
-            <input
-              type="file"
-              accept=".pdf,.docx,.txt"
-              onChange={handleUpload}
-              disabled={uploading}
-              className="hidden"
-            />
-          </label>
+        <div className="mb-8">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">My Documents</h1>
+          <p className="text-gray-500 text-sm mt-1">
+            Upload documents and chat with them using AI
+          </p>
         </div>
 
-        {/* Error message */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-6">
-            {error}
+        {/* Search bar */}
+        {documents.length > 0 && (
+          <div className="relative mb-6">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search your documents here..."
+              className="w-full border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D9E75] focus:border-transparent"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-lg"
+              >
+                ×
+              </button>
+            )}
           </div>
         )}
+
 
         {/* Loading skeleton */}
         {loading && (
@@ -124,7 +140,7 @@ function DashboardPage() {
         )}
 
         {/* Empty state */}
-        {!loading && documents.length === 0 && (
+        {!loading && filteredDocuments.length === 0 && !searchQuery && (
           <div className="text-center py-20">
             <div className="text-5xl mb-4">📄</div>
             <h3 className="text-lg font-medium text-gray-700 mb-2">
@@ -136,13 +152,26 @@ function DashboardPage() {
           </div>
         )}
 
+        {/* No search results */}
+        {!loading && searchQuery && filteredDocuments.length === 0 && (
+          <div className="text-center py-20">
+            <div className="text-5xl mb-4">🔍</div>
+            <h3 className="text-lg font-medium text-gray-700 mb-2">
+              No documents found
+            </h3>
+            <p className="text-gray-400 text-sm">
+              No documents match "{searchQuery}"
+            </p>
+          </div>
+        )}
+
         {/* Document cards grid */}
         {!loading && documents.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {documents.map((doc) => (
+            {filteredDocuments.map((doc) => (
               <div
                 key={doc.id}
-                className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow"
+                className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow"
               >
                 {/* File icon + name */}
                 <div className="flex items-start gap-3 mb-4">
@@ -160,12 +189,12 @@ function DashboardPage() {
                 </div>
 
                 {/* Action buttons */}
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 mb-2">
                   <button
                     onClick={() => navigate(`/chat/${doc.id}`)}
                     className="flex-1 bg-[#1D9E75] hover:bg-[#178a63] text-white text-sm font-medium py-2 rounded-lg transition-colors"
                   >
-                    Chat with Doc
+                    Chat
                   </button>
                   <button
                     onClick={() => navigate(`/flashcards/${doc.id}`)}
@@ -173,19 +202,29 @@ function DashboardPage() {
                   >
                     Flashcards
                   </button>
-                  <button
-                    onClick={() => handleDelete(doc.id)}
-                    className="w-full border border-red-200 text-red-400 hover:bg-red-50 text-sm font-medium py-2 rounded-lg transition-colors"
-                  >
-                    Delete
-                  </button>
                 </div>
+                <button
+                  onClick={() => handleDelete(doc.id)}
+                  disabled={deletingId === doc.id}
+                  className="w-full border border-red-200 text-red-400 hover:bg-red-50 text-sm font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {deletingId === doc.id ? 'Deleting...' : 'Delete'}
+                </button>
               </div>
             ))}
           </div>
         )}
 
       </div>
+
+      {/* Toast notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={hideToast}
+        />
+      )}
     </div>
   )
 }
