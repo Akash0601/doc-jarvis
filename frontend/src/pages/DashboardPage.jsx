@@ -197,13 +197,13 @@ function DashboardPage() {
                 <div className="flex gap-2 mb-2">
                   <button
                     onClick={() => navigate(`/chat/${doc.id}`)}
-                    className="flex-1 bg-[#1D9E75] hover:bg-[#178a63] text-white text-sm font-medium py-2 rounded-lg transition-colors"
+                    className="flex-1 bg-[#1D9E75] hover:bg-[#178a63] text-white text-sm font-medium py-2 rounded-lg transition-colors cursor-pointer"
                   >
                     Chat
                   </button>
                   <button
                     onClick={() => navigate(`/flashcards/${doc.id}`)}
-                    className="flex-1 border border-[#1D9E75] text-[#1D9E75] hover:bg-[#1D9E75] hover:text-white text-sm font-medium py-2 rounded-lg transition-colors"
+                    className="flex-1 border border-[#1D9E75] text-[#1D9E75] hover:bg-[#1D9E75] hover:text-white text-sm font-medium py-2 rounded-lg transition-colors cursor-pointer"
                   >
                     Flashcards
                   </button>
@@ -211,7 +211,7 @@ function DashboardPage() {
                 <button
                   onClick={() => handleDelete(doc.id)}
                   disabled={deletingId === doc.id}
-                  className="w-full border border-red-200 text-red-400 hover:bg-red-50 text-sm font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
+                  className="w-full border border-red-200 text-red-400 hover:bg-red-50 text-sm font-medium py-2 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   {deletingId === doc.id ? 'Deleting...' : 'Delete'}
                 </button>

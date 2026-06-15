@@ -7,3 +7,8 @@ export const askQuestion = (documentId, question) => {
 export const getChatHistory = (documentId) => {
   return api.get(`/chat/history/${documentId}`)
 }
+
+export const generateFlashcards = async (documentId) => {
+  const response = await api.post('/flashcards/generate', { documentId });
+  return response.data; // returns List<FlashcardCard> — array of {question, answer}
+};

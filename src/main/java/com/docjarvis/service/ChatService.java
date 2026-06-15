@@ -46,7 +46,7 @@ public class ChatService {
 
         // Step 3: Search Qdrant for relevant chunks
         List<EmbeddingMatch<TextSegment>> relevantChunks = semanticSearchService
-                .findRelevantChunks(request.getQuestion(), request.getDocumentId());
+                .findRelevantChunks(request.getQuestion(), request.getDocumentId(), 50);
 
         log.info("Found {} relevant chunks for question: '{}'",
                 relevantChunks.size(), request.getQuestion());

@@ -25,6 +25,7 @@ public class LlmConfig {
                 .baseUrl(baseUrl)
                 .modelName(modelName)
                 .timeout(Duration.ofMinutes(3))
+                .numPredict(2000)
                 .build();
     }
 

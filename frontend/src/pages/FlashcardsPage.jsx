@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import { askQuestion } from '../services/chatService'
 import { getDocuments } from '../services/documentService'
+import { generateFlashcards } from '../services/chatService';
 
 function FlashcardsPage() {
   const { documentId } = useParams()
@@ -36,27 +36,8 @@ function FlashcardsPage() {
     setFlashcards([])
     setFlipped({})
     try {
-      const prompt = `Generate exactly 5 flashcards from this document.
-      Return ONLY a JSON array with no extra text before or after.
-      Use this exact format:
-      [{"question": "...", "answer": "..."}, {"question": "...", "answer": "..."}]`
-
-      const response = await askQuestion(parseInt(documentId), prompt)
-      const rawAnswer = response.data.answer
-
-      const jsonMatch = rawAnswer.match(/\[[\s\S]*\]/)
-      if (!jsonMatch) throw new Error('No JSON array found')
-
-      let parsed = JSON.parse(jsonMatch[0])
-      if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('Empty array')
-
-      parsed = parsed.map(item => {
-        if (typeof item === 'string') return JSON.parse(item)
-        return item
-      })
-
-      setError('')
-      setFlashcards(parsed)
+      const cards = await generateFlashcards(parseInt(documentId))
+      setFlashcards(cards)
       setGenerated(true)
     } catch {
       setError('Failed to generate flashcards. Please try again.')
@@ -78,7 +59,7 @@ function FlashcardsPage() {
         <div className="max-w-4xl mx-auto flex items-center gap-3">
           <button
             onClick={() => navigate('/dashboard')}
-            className="text-gray-400 hover:text-gray-600 transition-colors text-sm"
+            className="text-gray-400 hover:text-gray-600 transition-colors text-sm cursor-pointer"
           >
             ← Back
           </button>
@@ -103,7 +84,7 @@ function FlashcardsPage() {
             <button
               onClick={loadFlashcards}
               disabled={loading}
-              className="text-sm text-[#1D9E75] border border-[#1D9E75] px-4 py-2 rounded-lg hover:bg-[#1D9E75] hover:text-white transition-colors disabled:opacity-50"
+              className="text-sm text-[#1D9E75] border border-[#1D9E75] px-4 py-2 rounded-lg hover:bg-[#1D9E75] hover:text-white transition-colors disabled:opacity-50 cursor-pointer"
             >
               {loading ? 'Generating...' : '↺ Regenerate'}
             </button>
@@ -128,7 +109,7 @@ function FlashcardsPage() {
             </p>
             <button
               onClick={loadFlashcards}
-              className="bg-[#1D9E75] hover:bg-[#178a63] text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors"
+              className="bg-[#1D9E75] hover:bg-[#178a63] text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer"
             >
               Generate Flashcards
             </button>

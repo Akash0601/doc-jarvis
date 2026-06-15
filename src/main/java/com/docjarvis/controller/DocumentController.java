@@ -17,7 +17,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.docjarvis.document.Document;
 import com.docjarvis.dto.DocumentResponse;
 import com.docjarvis.entity.User;
+import com.docjarvis.repository.DocumentRepository;
 import com.docjarvis.service.DocumentService;
+import com.docjarvis.service.EmbeddingService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +29,8 @@ import lombok.RequiredArgsConstructor;
 public class DocumentController {
 
     private final DocumentService documentService;
+    private final EmbeddingService embeddingService;
+    private final DocumentRepository documentRepository;
 
     @PostMapping("/upload")
     public ResponseEntity<DocumentResponse> uploadDocument(
@@ -55,5 +59,13 @@ public class DocumentController {
 
         documentService.deleteDocument(documentId, user);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{documentId}/reembed")
+    public ResponseEntity<String> reEmbed(@PathVariable Long documentId) {
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new RuntimeException("Document not found: " + documentId));
+        embeddingService.embedAndStore(documentId, document.getExtractedText());
+        return ResponseEntity.ok("Re-embedding complete for documentId: " + documentId);
     }
 }

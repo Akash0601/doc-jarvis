@@ -22,32 +22,25 @@ public class SemanticSearchService {
     private final EmbeddingModel embeddingModel;
     private final QdrantEmbeddingStore qdrantEmbeddingStore;
 
-    public List<EmbeddingMatch<TextSegment>> findRelevantChunks(String query, Long documentId) {
+    public List<EmbeddingMatch<TextSegment>> findRelevantChunks(String query, Long documentId, int maxResults, double minScore) {
 
         log.info("Searching for relevant chunks for query: '{}', documentId: {}", query, documentId);
 
-        // Step 1: Embed the user's query using the SAME model used during ingestion
         TextSegment querySegment = TextSegment.from(query);
         Embedding queryEmbedding = embeddingModel.embed(querySegment).content();
-        log.info("Query embedding dimension: {}", queryEmbedding.vector().length);
 
-        // Step 2: Build the search request — top 5 most similar chunks
         EmbeddingSearchRequest searchRequest = EmbeddingSearchRequest.builder()
                 .queryEmbedding(queryEmbedding)
-                .maxResults(5)
-                .minScore(0.3)
+                .maxResults(maxResults)
+                .minScore(minScore)
                 .build();
-           
 
-        // Step 3: Search Qdrant for similar vectors
         EmbeddingSearchResult<TextSegment> searchResult =
                 qdrantEmbeddingStore.search(searchRequest);
 
         List<EmbeddingMatch<TextSegment>> matches = searchResult.matches();
-
         log.info("Found {} relevant chunks", matches.size());
 
-        // Step 4: Filter by documentId — only return chunks from the requested document
         List<EmbeddingMatch<TextSegment>> filtered = matches.stream()
                 .filter(match -> {
                     if (match.embedded() == null) return true;
@@ -59,5 +52,9 @@ public class SemanticSearchService {
         log.info("After filtering by documentId {}: {} chunks remain", documentId, filtered.size());
 
         return filtered;
+    }
+
+    public List<EmbeddingMatch<TextSegment>> findRelevantChunks(String query, Long documentId, int maxResults) {
+        return findRelevantChunks(query, documentId, maxResults, 0.3);
     }
 }
