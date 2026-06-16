@@ -19,6 +19,8 @@ spring:
   autoconfigure:
     exclude:
       - dev.langchain4j.spring.boot.autoconfigure.embedding.model.EmbeddingModelAutoConfiguration
+      - dev.langchain4j.spring.boot.autoconfigure.openai.OpenAiAutoConfiguration
+
 server:
   port: 8080
 
@@ -26,18 +28,18 @@ jwt:
   secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
   expiration: 86400000
 
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
 langchain4j:
   qdrant:
     host: localhost
     port: 6334
     uses-tls: false
     collection-name: documents
-
----
-spring:
-  config:
-    activate:
-      on-profile: local
 
 llm:
   provider: ollama
@@ -51,8 +53,19 @@ spring:
     activate:
       on-profile: prod
 
+langchain4j:
+  qdrant:
+    host: ${QDRANT_URL}
+    port: 6334
+    uses-tls: true
+    collection-name: documents
+
 llm:
   provider: openai
   openai:
     api-key: ${OPENAI_API_KEY}
     model-name: gpt-4o-mini
+
+qdrant:
+  cloud:
+    api-key: ${QDRANT_API_KEY}

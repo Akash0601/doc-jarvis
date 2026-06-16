@@ -30,11 +30,17 @@ public class EmbeddingService {
     private final TextChunkingService textChunkingService;
     private final QdrantEmbeddingStore embeddingStore;
 
-    @Value("${langchain4j.qdrant.host}")
+    @Value("${langchain4j.qdrant.host:localhost}")
     private String qdrantHost;
 
-    @Value("${langchain4j.qdrant.port}")
+    @Value("${langchain4j.qdrant.port:6334}")
     private int qdrantPort;
+
+    @Value("${langchain4j.qdrant.uses-tls:false}")
+    private boolean qdrantUseTls;
+
+    @Value("${qdrant.cloud.api-key:}")
+    private String qdrantApiKey;
 
     public EmbeddingService(EmbeddingModel embeddingModel,
                             TextChunkingService textChunkingService,
@@ -46,9 +52,14 @@ public class EmbeddingService {
 
     @PostConstruct
     public void initQdrant() throws ExecutionException, InterruptedException {
-        QdrantClient qdrantClient = new QdrantClient(
-                QdrantGrpcClient.newBuilder(qdrantHost, qdrantPort, false).build()
-        );
+        QdrantGrpcClient.Builder grpcBuilder = QdrantGrpcClient.newBuilder(qdrantHost, qdrantPort, qdrantUseTls);
+        
+        // Add API key if present (Qdrant Cloud)
+        if (qdrantApiKey != null && !qdrantApiKey.isEmpty()) {
+            grpcBuilder.withApiKey(qdrantApiKey);
+        }
+
+        QdrantClient qdrantClient = new QdrantClient(grpcBuilder.build());
 
         boolean collectionExists = qdrantClient.listCollectionsAsync()
                 .get()
@@ -68,6 +79,8 @@ public class EmbeddingService {
         } else {
             log.info("Qdrant collection '{}' already exists", COLLECTION_NAME);
         }
+
+        qdrantClient.close();
     }
 
     public void embedAndStore(Long documentId, String fullText) {
