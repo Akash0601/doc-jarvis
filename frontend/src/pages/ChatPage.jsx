@@ -16,7 +16,14 @@ function ChatPage() {
   const [documents, setDocuments] = useState([])
   const [documentName, setDocumentName] = useState('')
   const [chatPreviews, setChatPreviews] = useState({})
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768)
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) setSidebarOpen(false)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
   const messagesEndRef = useRef(null)
 
   const loadDocuments = async () => {

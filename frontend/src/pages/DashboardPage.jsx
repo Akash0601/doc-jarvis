@@ -49,6 +49,19 @@ function DashboardPage() {
       return
     }
 
+    // ── Duplicate detection ──────────────────────────────
+    const duplicate = documents.find(
+      doc => doc.fileName.toLowerCase() === file.name.toLowerCase()
+    )
+    if (duplicate) {
+      showToast(
+        'This document already exists! You can find it using the search bar.',
+        'error'
+      )
+      e.target.value = ''
+      return
+    }
+
     setUploading(true)
     try {
       await uploadDocument(file)
