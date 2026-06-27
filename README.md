@@ -26,10 +26,10 @@
 ## 🏗️ Architecture
 
 ```
-React Frontend (Vercel)
-        ↓ HTTPS
-Spring Boot Backend (Railway)
-        ↓
+    React Frontend (Vercel)
+                ↓ HTTPS
+    Spring Boot Backend (Railway)
+                ↓
 ┌───────────────────────────────────┐
 │  Document Upload & Text Extraction│
 │  (PDFBox + Apache POI + Tika)     │
