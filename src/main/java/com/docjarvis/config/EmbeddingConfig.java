@@ -1,5 +1,7 @@
 package com.docjarvis.config;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,12 +11,22 @@ import org.springframework.context.annotation.Profile;
 
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2EmbeddingModel;
+import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.store.embedding.qdrant.QdrantEmbeddingStore;
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.QdrantGrpcClient;
 
 @Configuration
 public class EmbeddingConfig {
+
+    @Bean
+    public ContentRetriever contentRetriever() {
+        // No-op: we use our own manual RAG pipeline via SemanticSearchService.
+        // This bean exists only to satisfy LangChain4j's auto-configuration
+        // (@ConditionalOnMissingBean) so it doesn't eagerly build its own
+        // contentRetriever, which would force EmbeddingModel to load at startup.
+        return query -> List.of();
+    }
 
     @Bean
     @Primary
