@@ -51,6 +51,7 @@ public class EmbeddingConfig {
 
     @Bean
     @Profile("prod")
+    @Lazy
     public QdrantEmbeddingStore prodQdrantEmbeddingStore(
             @Value("${langchain4j.qdrant.host}") String host,
             @Value("${qdrant.cloud.api-key}") String apiKey) {
@@ -65,6 +66,7 @@ public class EmbeddingConfig {
 
     @Bean
     @Profile("prod")
+    @Lazy
     public QdrantClient cloudQdrantClient(
             @Value("${langchain4j.qdrant.host}") String host,
             @Value("${qdrant.cloud.api-key}") String apiKey) {
