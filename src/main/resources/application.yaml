@@ -20,6 +20,7 @@ spring:
     exclude:
       - dev.langchain4j.spring.boot.autoconfigure.embedding.model.EmbeddingModelAutoConfiguration
       - dev.langchain4j.spring.boot.autoconfigure.openai.OpenAiAutoConfiguration
+      - dev.langchain4j.rag.spring.RagAutoConfig
 
 server:
   port: 8080
