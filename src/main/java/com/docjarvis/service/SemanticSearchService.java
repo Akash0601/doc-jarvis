@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import dev.langchain4j.data.embedding.Embedding;
@@ -13,11 +14,9 @@ import dev.langchain4j.store.embedding.EmbeddingMatch;
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.grpc.Points.ScoredPoint;
 import io.qdrant.client.grpc.Points.SearchPoints;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class SemanticSearchService {
 
@@ -25,6 +24,11 @@ public class SemanticSearchService {
     private final QdrantClient qdrantClient;
 
     private static final String COLLECTION_NAME = "documents";
+
+    public SemanticSearchService(@Lazy EmbeddingModel embeddingModel, QdrantClient qdrantClient) {
+        this.embeddingModel = embeddingModel;
+        this.qdrantClient = qdrantClient;
+    }
 
     public List<EmbeddingMatch<TextSegment>> findRelevantChunks(
             String query, Long documentId, int maxResults) {
