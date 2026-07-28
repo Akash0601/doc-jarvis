@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import dev.langchain4j.data.document.Metadata;
@@ -42,7 +43,7 @@ public class EmbeddingService {
     @Value("${qdrant.cloud.api-key:}")
     private String qdrantApiKey;
 
-    public EmbeddingService(EmbeddingModel embeddingModel,
+    public EmbeddingService(@Lazy EmbeddingModel embeddingModel,
                             TextChunkingService textChunkingService,
                             QdrantEmbeddingStore embeddingStore) {
         this.embeddingModel = embeddingModel;
