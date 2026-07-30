@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2EmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.store.embedding.qdrant.QdrantEmbeddingStore;
 import io.qdrant.client.QdrantClient;
@@ -31,8 +31,11 @@ public class EmbeddingConfig {
     @Bean
     @Primary
     @Lazy
-    public EmbeddingModel embeddingModel() {
-        return new AllMiniLmL6V2EmbeddingModel();
+    public EmbeddingModel embeddingModel(@Value("${llm.openai.api-key}") String apiKey) {
+        return OpenAiEmbeddingModel.builder()
+            .apiKey(apiKey)
+            .modelName("text-embedding-3-small")
+            .build();
     }
 
     // ─── LOCAL PROFILE ──────────────────────────────────────────────────────

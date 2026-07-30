@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class EmbeddingService {
 
     private static final String COLLECTION_NAME = "documents";
-    private static final int VECTOR_DIMENSION = 384;
+    private static final int VECTOR_DIMENSION = 1536;
 
     private final EmbeddingModel embeddingModel;
     private final TextChunkingService textChunkingService;
