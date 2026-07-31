@@ -10,6 +10,8 @@
 ![React](https://img.shields.io/badge/React-18-blue)
 ![LangChain4j](https://img.shields.io/badge/LangChain4j-1.0.0--beta2-purple)
 
+> **Infrastructure Note:** Originally deployed on Railway; migrated to Render + Supabase for a sustainable free-tier setup, and switched from a locally-hosted ONNX embedding model to OpenAI's embedding API to fit within free-tier memory constraints.
+
 ---
 
 ## ✨ Features
@@ -28,7 +30,7 @@
 ```
     React Frontend (Vercel)
                 ↓ HTTPS
-    Spring Boot Backend (Railway)
+    Spring Boot Backend (Render)
                 ↓
 ┌───────────────────────────────────┐
 │  Document Upload & Text Extraction│
@@ -37,7 +39,8 @@
                 ↓
 ┌───────────────────────────────────┐
 │  Embedding Pipeline               │
-│  AllMiniLmL6V2 → 384-dim vectors  │
+│  OpenAI text-embedding-3-small →  │
+│   1536-dim vectors                │
 │  Stored in Qdrant Cloud           │
 └───────────────┬───────────────────┘
                 ↓
@@ -47,7 +50,7 @@
 │  → Context → GPT-4o-mini → Answer │
 └───────────────────────────────────┘
                 ↓
-PostgreSQL (Railway)
+PostgreSQL (Supabase)
 Chat history + Document metadata
 ```
 
@@ -55,17 +58,17 @@ Chat history + Document metadata
 
 ## 🛠️ Tech Stack
 
-| Layer           | Technology                             |
-|-----------------|----------------------------------------|
-| Frontend        | React 18, Vite, Tailwind CSS           |
-| Backend         | Java 21, Spring Boot 3.5               |
-| AI/LLM          | OpenAI GPT-4o-mini, LangChain4j        |
-| Embeddings      | AllMiniLmL6V2 (384-dim, local ONNX)    |
-| Vector DB       | Qdrant Cloud                           |
-| Database        | PostgreSQL 17                          |
-| Auth            | JWT (JJWT), BCrypt                     |
-| Text Extraction | Apache PDFBox, Apache POI, Apache Tika |
-| Deployment      | Railway (backend), Vercel (frontend)   |
+| Layer           | Technology                                           |
+|-----------------|------------------------------------------------------|
+| Frontend        | React 18, Vite, Tailwind CSS                         |
+| Backend         | Java 21, Spring Boot 3.5                             |
+| AI/LLM          | OpenAI GPT-4o-mini, LangChain4j                      |
+| Embeddings      | OpenAI text-embedding-3-small (1536-dim)             |
+| Vector DB       | Qdrant Cloud                                         |
+| Database        | PostgreSQL 17                                        |
+| Auth            | JWT (JJWT), BCrypt                                   |
+| Text Extraction | Apache PDFBox, Apache POI, Apache Tika               |
+| Deployment      | Render (backend), Supabase (DB), Vercel (frontend)   |
 
 ---
 
@@ -111,7 +114,7 @@ Backend runs at `http://localhost:8080`
 
 ## 🔑 Environment Variables
 
-### Backend (Railway)
+### Backend (Render)
 | Variable                     | Description               |
 |------------------------------|---------------------------|
 | `SPRING_PROFILES_ACTIVE`     | Set to `prod`             |
@@ -126,7 +129,7 @@ Backend runs at `http://localhost:8080`
 ### Frontend (Vercel)
 | Variable       | Description                  |
 |----------------|------------------------------|
-| `VITE_API_URL` | Railway backend URL + `/api` |
+| `VITE_API_URL` | Render backend URL + `/api`  |
 
 ---
 
@@ -136,6 +139,11 @@ Backend runs at `http://localhost:8080`
 ```
 POST /api/auth/signup
 POST /api/auth/login
+```
+
+### Health Check (Public)
+```
+GET /health
 ```
 
 ### Documents (JWT Protected)
